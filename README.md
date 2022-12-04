@@ -43,4 +43,6 @@ In the case, you would like to expand for allowing `both`, then you can redesign
 
 ### AclGuard
 
-`AclGuard` is utilized to check if users are permitted to access certain page, based on their `role`. If their role doesn't match the correct
+`AclGuard` is utilized to check if users are permitted to access certain page, based on their `role`. If their role doesn't match the expected role of a specific page, then the user will be redirected to the `403 Forbidden` page.
+
+There is many way to approach the ACL design. In my simple use case here, I utilized just simple representation using strings. However, to beef up your authorization system design, I would recommend using [@casl/ability](https://www.npmjs.com/package/@casl/ability).
