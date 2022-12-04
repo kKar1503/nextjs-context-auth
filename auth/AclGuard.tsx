@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import useAuth from '../hooks/useAuth';
-import NotAuthorized from '../pages/401';
+import Forbidden from '../pages/403';
 import { Role } from '../types';
 
 type AclGuardProps = {
@@ -30,7 +30,7 @@ const AclGuard = ({ children, guestGuard, aclAbilities }: AclGuardProps) => {
   }
 
   // If no access
-  return <NotAuthorized />;
+  return <Forbidden />;
 };
 
 export default AclGuard;
