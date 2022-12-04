@@ -1,6 +1,12 @@
 import { useRouter } from 'next/router';
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
-import type { LoginParam, User, ErrorCallback, Error } from '../types';
+import type {
+  LoginParam,
+  User,
+  UserWithToken,
+  ErrorCallback,
+  Error,
+} from '../types';
 import { consts } from '../config/auth';
 
 type AuthValuesType = {
@@ -49,7 +55,7 @@ const AuthProvider = ({ children }: Props) => {
       );
       if (storedToken) {
         setLoading(true);
-        if (true) {
+        if (storedToken !== null || storedUser !== null) {
           // Verify token with if-else
           // or if there exists a /me route use it to verify
           // with .then().catch() or try-catch
@@ -83,15 +89,33 @@ const AuthProvider = ({ children }: Props) => {
       },
     })
       .then(async (response) => {
+        if (response.status !== 200) {
+          const error: Error = await response.json();
+          throw new Error(error.error);
+        }
         // Return URL is used when user tried to go specific page via
         // URL but unable to go continue due to not logged in.
         // This betters the UX to have an easier time to go back to
         // the original page without added navigation.
         const returnUrl = router.query.returnUrl;
 
-        setUser(await response.json());
+        const userData: UserWithToken = await response.json();
+        const userDataWithoutToken: User = {
+          username: userData.username,
+          password: userData.password,
+          role: userData.role,
+        };
 
-        window.localStorage.setItem(consts.UserKey, JSON.stringify(user));
+        setUser(userDataWithoutToken);
+
+        window.localStorage.setItem(
+          consts.UserKey,
+          JSON.stringify(userDataWithoutToken)
+        );
+        window.localStorage.setItem(
+          consts.AuthTokenKey,
+          JSON.stringify(userData.token)
+        );
 
         const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
 
