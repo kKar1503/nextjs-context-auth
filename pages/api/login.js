@@ -1,7 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import type { User, LoginParam, Error, UserWithToken } from '../../types';
-
-const accounts: User[] = [
+const accounts = [
   {
     username: 'admin',
     password: 'admin123',
@@ -14,11 +11,8 @@ const accounts: User[] = [
   },
 ];
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<UserWithToken | Error>
-) {
-  const { username, password } = req.body as LoginParam;
+export default function handler(req, res) {
+  const { username, password } = req.body;
   const user = accounts.find(
     (account) => account.username === username && account.password === password
   );

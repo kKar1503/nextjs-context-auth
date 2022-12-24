@@ -3,13 +3,12 @@ import { useRouter } from 'next/router';
 import useAuth from '../hooks/useAuth';
 import { consts } from '../config/auth';
 
-interface AuthGuardProps {
-  children: ReactNode;
-  fallback: ReactElement | null;
-}
-
-const AuthGuard = (props: AuthGuardProps) => {
-  const { children, fallback } = props;
+/**
+ *
+ * @param {{children: ReactNode, fallback: ReactElement | null}} props
+ * @returns
+ */
+const AuthGuard = ({ children, fallback }) => {
   const auth = useAuth();
   const router = useRouter();
 

@@ -1,26 +1,48 @@
 import { useRouter } from 'next/router';
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
-import type {
-  LoginParam,
-  User,
-  UserWithToken,
-  ErrorCallback,
-  Error,
-} from '../types';
 import { consts } from '../config/auth';
 
-type AuthValuesType = {
-  loading: boolean;
-  setLoading: (value: boolean) => void;
-  isInitialized: boolean;
-  setIsInitialized: (value: boolean) => void;
-  user: User | null;
-  setUser: (user: User) => void;
-  login: (params: LoginParam, errorCallback: ErrorCallback) => void;
-  logout: () => void;
-};
+/**
+ * @typedef {Object} LoginParam
+ * @property {string} username
+ * @property {string} password
+ */
+/**
+ * @typedef {Object} Role
+ * @property {'admin' | 'user' | 'open'} role
+ */
+/**
+ * @typedef {Object} UserToken
+ * @property {string} token
+ */
+/**
+ * @typedef {Object} CustomError
+ * @property {string} error
+ */
+/**
+ * @typedef {LoginParam & Role} User
+ */
+/**
+ * @typedef {User & UserToken} UserWithToken
+ */
+/**
+ * @callback ErrorCallback
+ * @param {CustomError} error
+ * @returns void
+ */
+/**
+ * @typedef {Object} AuthValuesType
+ * @property {boolean} loading
+ * @property {(value:boolean) => void} setLoading
+ * @property {boolean} isInitialized
+ * @property {(value:boolean) => void} setIsInitialized
+ * @property {User | null} user
+ * @property {(user: User) => void} setUser
+ * @property {(params: LoginParam, errorCallback: ErrorCallback) => void} login
+ * @property {() => void} logout
+ */
 
-const defaultProvider: AuthValuesType = {
+const defaultProvider = {
   loading: true,
   setLoading: () => Boolean,
   isInitialized: false,
@@ -33,25 +55,31 @@ const defaultProvider: AuthValuesType = {
 
 const AuthContext = createContext(defaultProvider);
 
-type Props = {
-  children: ReactNode;
-};
+/**
+ *
+ * @param {{children: ReactNode}} props
+ * @returns
+ */
+const AuthProvider = ({ children }) => {
+  /** @type {[User|null, (user:User => void)]} */
+  const [user, setUser] = useState(defaultProvider.user);
 
-const AuthProvider = ({ children }: Props) => {
-  const [user, setUser] = useState<User | null>(defaultProvider.user);
-  const [loading, setLoading] = useState<boolean>(defaultProvider.loading);
-  const [isInitialized, setIsInitialized] = useState<boolean>(
+  /** @type {[boolean, (value:boolean => void)]} */
+  const [loading, setLoading] = useState(defaultProvider.loading);
+
+  /** @type {[boolean, (value:boolean => void)]} */
+  const [isInitialized, setIsInitialized] = useState(
     defaultProvider.isInitialized
   );
 
   const router = useRouter();
 
   useEffect(() => {
-    const initAuth = async (): Promise<void> => {
+    const initAuth = async () => {
       setIsInitialized(true);
-      const storedToken = window.localStorage.getItem(consts.AuthTokenKey)!;
+      const storedToken = window.localStorage.getItem(consts.AuthTokenKey);
       const storedUser = JSON.parse(
-        window.localStorage.getItem(consts.UserKey)!
+        window.localStorage.getItem(consts.UserKey)
       );
       if (storedToken) {
         setLoading(true);
@@ -59,7 +87,7 @@ const AuthProvider = ({ children }: Props) => {
           // Verify token with if-else
           // or if there exists a /me route use it to verify
           // with .then().catch() or try-catch
-          if (storedUser) setUser(storedUser as User);
+          if (storedUser) setUser(storedUser);
           setLoading(false);
         } else {
           // When token somehow fails
@@ -77,7 +105,12 @@ const AuthProvider = ({ children }: Props) => {
     initAuth();
   }, []);
 
-  const handleLogin = (params: LoginParam, errorCallback: ErrorCallback) => {
+  /**
+   * HandleLogin
+   * @param {LoginParam} params
+   * @param {ErrorCallback} errorCallback
+   */
+  const handleLogin = (params, errorCallback) => {
     fetch('/api/login', {
       body: JSON.stringify({
         username: params.username,
@@ -90,7 +123,8 @@ const AuthProvider = ({ children }: Props) => {
     })
       .then(async (response) => {
         if (response.status !== 200) {
-          const error: Error = await response.json();
+          /** @type {CustomError} */
+          const error = await response.json();
           throw new Error(error.error);
         }
         // Return URL is used when user tried to go specific page via
@@ -99,8 +133,10 @@ const AuthProvider = ({ children }: Props) => {
         // the original page without added navigation.
         const returnUrl = router.query.returnUrl;
 
-        const userData: UserWithToken = await response.json();
-        const userDataWithoutToken: User = {
+        /** @type {UserWithToken} */
+        const userData = await response.json();
+        /** @type {User} */
+        const userDataWithoutToken = {
           username: userData.username,
           password: userData.password,
           role: userData.role,
@@ -121,9 +157,9 @@ const AuthProvider = ({ children }: Props) => {
 
         // Using replace, so user doesn't go back to login page.
         // Since we rewrite the login page from the history state
-        router.replace(redirectURL as string);
+        router.replace(redirectURL);
       })
-      .catch((error) => errorCallback(error as Error));
+      .catch((error) => errorCallback(error));
   };
 
   const handleLogout = () => {

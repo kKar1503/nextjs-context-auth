@@ -1,7 +1,5 @@
 import '../styles/globals.css';
 import React, { ReactNode } from 'react';
-import type { AppProps } from 'next/app';
-import type { NextPage } from 'next';
 
 import { AuthProvider } from '../context/AuthContext';
 
@@ -12,17 +10,17 @@ import Loader from '../components/Loading';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-type GuardProps = {
-  authGuard: boolean;
-  guestGuard: boolean;
-  children: ReactNode;
-};
+/**
+ * @typedef {Object} GuardProps
+ * @property {boolean} authGuard
+ * @property {boolean} guestGuard
+ * @property {ReactNode} children
+ */
 
-type ExtendedAppProps = AppProps & {
-  Component: NextPage;
-};
-
-const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
+/**
+ * @param {GuardProps}
+ */
+const Guard = ({ children, authGuard, guestGuard }) => {
   console.log('guard', { authGuard, guestGuard });
   if (guestGuard) {
     return <GuestGuard fallback={<Loader />}>{children}</GuestGuard>;
@@ -33,8 +31,7 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
   }
 };
 
-const App = (props: ExtendedAppProps) => {
-  const { Component, pageProps } = props;
+const App = ({ Component, pageProps }) => {
   const authGuard = Component.authGuard ?? true;
   const guestGuard = Component.guestGuard ?? false;
   const aclAbilities = Component.acl ?? 'open';

@@ -2,16 +2,13 @@ import React, { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import useAuth from '../hooks/useAuth';
 import Forbidden from '../pages/403';
-import { Role } from '../types';
 
-type AclGuardProps = {
-  children: ReactNode;
-  guestGuard: boolean;
-  // Explore options for setting up
-  aclAbilities: Role;
-};
-
-const AclGuard = ({ children, guestGuard, aclAbilities }: AclGuardProps) => {
+/**
+ *
+ * @param {{children: ReactNode, guestGuard: boolean, aclAbilities: 'admin' | 'user' | 'open'}} Props
+ * @returns
+ */
+const AclGuard = ({ children, guestGuard, aclAbilities }) => {
   const router = useRouter();
   const auth = useAuth();
 

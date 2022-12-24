@@ -5,18 +5,23 @@ import useAuth from '../hooks/useAuth';
 const Login = () => {
   const auth = useAuth();
 
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  /** @type {React.MutableRefObject<HTMLInputElement>} */
+  const usernameRef = useRef(null);
+  /** @type {React.MutableRefObject<HTMLInputElement>} */
+  const passwordRef = useRef(null);
 
-  const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
+  /**
+   * @param {React.MouseEvent<HTMLButtonElement>} e
+   */
+  const handleLogin = (e) => {
     e.preventDefault();
     auth.login(
       {
-        username: usernameRef.current?.value!,
-        password: passwordRef.current?.value!,
+        username: usernameRef.current?.value,
+        password: passwordRef.current?.value,
       },
       (error) => {
-        console.log(error);
+        alert(error);
       }
     );
   };

@@ -3,11 +3,6 @@ import { useRouter } from 'next/router';
 import useAuth from '../hooks/useAuth';
 import { consts } from '../config/auth';
 
-interface GuestGuardProps {
-  children: ReactNode;
-  fallback: ReactElement | null;
-}
-
 // There's only 1 drawback in this GuestGuard design.
 // It is that if you would like some pages that allow both guests and logged in user.
 // This design would not support it. Since guestGuard now only supports boolean.
@@ -16,8 +11,12 @@ interface GuestGuardProps {
 //   • Guest Only
 //   • Logged In Only
 //   • Both
-const GuestGuard = (props: GuestGuardProps) => {
-  const { children, fallback } = props;
+/**
+ *
+ * @param {{children: ReactNode, fallback: ReactElement | null}} props
+ * @returns
+ */
+const GuestGuard = ({ children, fallback }) => {
   const auth = useAuth();
   const router = useRouter();
 
